@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>happy</title>
+    <title>disgusted</title>
 </head>
 
 <body style="margin-top: -2%;  ">
@@ -347,19 +347,41 @@ font-size: 36px;
     #uploadButton:hover {
       background-color: #0056b3;
     }
-    .image-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
+   /* CSS in styles.css */
+.image-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center; /* Center horizontally */
+  text-align: center; /* Center text content */
+  color: white;
+  font-family: monospace;
+  font-size: 70px;
+}
+
     .image-preview img {
-      width: calc(27% - 12px);
-      max-height: 280px;
-      object-fit: cover;
-      border-radius: 4px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-    }
+      color:white;
+      font-style: oblique;
+  width: 50%; /* Make each image take up the full width of the container */
+  max-height: 60%; /* Set a maximum height if needed */
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s; /* Smooth transition for hover effect */
+}
+
+/* Increase image size on hover */
+.image-preview img:hover {
+  transform: scale(1.2); /* Adjust the scale factor as needed */
+  transition: transform 0.3s;
+}
+
+/* Increase image size on hover */
+.image-preview img:hover {
+  transform: scale(1.2); /* Adjust the scale factor as needed */
+  transition: transform 0.3s;
+}
     #emailInput {
       width: 100%;
       padding: 10px;
@@ -377,6 +399,13 @@ font-size: 36px;
     #emailInput{
       margin-top: 4%;
     }
+
+
+    .image-description {
+  color: white;
+  text-align: center;
+  font-size: medium;
+}
 
 
 
@@ -851,7 +880,7 @@ font-size: 36px;
               <img id="previewImage" src="#" alt="Preview" width="350">
             </div>
             <!-- Input field for image description (initially hidden) -->
-            <textarea id="imageDescription" name="description" placeholder="Image Description" style="display: none;"></textarea>
+            <textarea id="imageDescription" name="description" placeholder="Image Description" style="display: none;" required></textarea>
             <!-- Submit button (initially hidden) -->
             <button type="submit" id="uploadButton" style="display: none;">Upload</button>
           </form>
@@ -918,11 +947,19 @@ font-size: 36px;
 
          <div id="uploadedfeed">
                   <h2 id="feed" style="text-align: center; font-family:Bradley Hand, cursive; font-size: 65px; color: #10ffef;">Feed</h2>
-                  <div class="image-preview" id="imageGallery"></div>
-          </div>
+                  
 
-                  
-                  
+                    <div class="image-preview" id="imageGallery">
+                      
+                    </div>
+                    <div id="downside" style="margin-top: -5%;"></div>
+
+                  <br>
+                  <br>
+                  <br>
+                  <br>
+                  <br>
+                  <br>
                   <br>
                   
                   <div id="instagram">
@@ -941,114 +978,157 @@ font-size: 36px;
 
       
       
-      const uploadFormLink = document.getElementById("uploadform");
-      
-    
-      uploadFormLink.addEventListener("click", function (event) {
+      // Event listener for showing the image upload form
+const uploadFormLink = document.getElementById("uploadform");
 
-        document.getElementById("containerr").style.display="inline";
-  document.getElementById("filler").style.display="none";
-
+uploadFormLink.addEventListener("click", function (event) {
+  document.getElementById("containerr").style.display = "inline";
+  document.getElementById("filler").style.display = "none";
 });
 
-
-
-
-
-
-
-
-
-
-
-
+// Function to display a preview of the selected image
 function displayPreviewImage() {
-      const imageInput = document.getElementById('imageInput');
-      const previewImage = document.getElementById('previewImage');
-      const imagePreview = document.getElementById('imagePreview');
-      const imageDescription = document.getElementById('imageDescription');
-      const uploadButton = document.getElementById('uploadButton');
+  const imageInput = document.getElementById('imageInput');
+  const previewImage = document.getElementById('previewImage');
+  const imagePreview = document.getElementById('imagePreview');
+  const imageDescription = document.getElementById('imageDescription');
+  const uploadButton = document.getElementById('uploadButton');
 
-      imageInput.addEventListener('change', function () {
-        const file = this.files[0];
+  imageInput.addEventListener('change', function () {
+    const file = this.files[0];
 
-        if (file) {
-          const reader = new FileReader();
+    if (file) {
+      const reader = new FileReader();
 
-          reader.onload = function (e) {
-            previewImage.src = e.target.result;
-            imagePreview.style.display = 'block';
-            imageDescription.style.display = 'block';
-            uploadButton.style.display = 'block';
-          };
+      reader.onload = function (e) {
+        previewImage.src = e.target.result;
+        imagePreview.style.display = 'block';
+        imageDescription.style.display = 'block';
+        uploadButton.style.display = 'block';
+        document.getElementById('input-box').style.height = "auto";
+      };
 
-          reader.readAsDataURL(file);
-        } else {
-          previewImage.src = '#';
-          imagePreview.style.display = 'none';
-          imageDescription.style.display = 'none';
-          uploadButton.style.display = 'none';
-          imageDescription.value = '';
-        }
-      });
+      reader.readAsDataURL(file);
+    } else {
+      previewImage.src = '#';
+      imagePreview.style.display = 'none';
+      imageDescription.style.display = 'none';
+      uploadButton.style.display = 'none';
+      imageDescription.value = '';
     }
+  });
+}
 
-    async function displayImages() {
-      try {
-        const response = await fetch('/images'); // Updated route for fetching images
-        const images = await response.json();
-        const imageGallery = document.getElementById('imageGallery');
+async function uploadImage() {
+  const imageInput = document.getElementById('imageInput');
+  const imageDescription = document.getElementById('imageDescription');
+  const formData = new FormData();
 
-        images.forEach((image) => {
-          const img = new Image();
-          img.src = `/uploads/${image}`;
-          img.alt = 'Uploaded Image';
-          imageGallery.appendChild(img);
-        });
-      } catch (error) {
-        console.error(error);
-      }
+  if (imageInput.files.length === 0) {
+    alert('Please select an image.');
+    return;
+  }
+
+  formData.append('image', imageInput.files[0]);
+  formData.append('description', imageDescription.value);
+
+  try {
+    const response = await fetch('/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      // Clear the input fields after successful upload
+      imageInput.value = '';
+      imageDescription.value = '';
+
+      // Display the uploaded image and description
+      const uploadedImage = await response.json();
+      displayImage(uploadedImage);
+    } else {
+      console.error('Image upload failed.');
     }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-    // Initial function calls to display images and handle image preview
-    displayImages();
-    displayPreviewImage();
+function displayImage(uploadedImage) {
+  const imageGallery = document.getElementById('imageGallery');
+
+  const imageContainer = document.createElement('div');
+  imageContainer.className = 'image-container';
+
+  const img = new Image();
+  img.src = `/uploads/${uploadedImage.filename}`;
+  img.alt = 'Uploaded Image';
+
+  const description = document.createElement('p5');
+  description.textContent = uploadedImage.description;
+
+  // Add a class to the description element
+  description.classList.add('image-description');
+  document.getElementsByTagName('p5').style.color="white";
+
+  imageContainer.appendChild(img);
+  imageContainer.appendChild(description);
+
+  imageGallery.appendChild(imageContainer);
+}
 
 
 
+// Function to display images fetched from the server with descriptions
+async function displayImages() {
+  try {
+    const response = await fetch('/images-with-descriptions');
+    const imagesWithDescriptions = await response.json();
+    const imageGallery = document.getElementById('imageGallery');
 
+    imagesWithDescriptions.forEach((item) => {
+      const img = new Image();
+      img.src = `/uploads/${item.filename}`;
+      img.alt = 'Uploaded Image';
 
+      const description = document.createElement('p');
+      description.textContent = item.description;
 
+      const imageContainer = document.createElement('div');
+      imageContainer.className = 'image-container';
+      imageContainer.appendChild(img);
+      imageContainer.appendChild(description);
 
+      imageGallery.appendChild(imageContainer);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
 
+// Initial function calls to display images with descriptions, handle image preview, and show mouse-related animations
+displayImages();
+displayPreviewImage();
 
-
-
-
-
-
-
-
-
+// Mouse-related animation
 window.addEventListener("mousemove", function (e) {
-	var to_append = document.getElementsByClassName('loader-container')[0];
-	var all = document.getElementsByClassName('loader-container');
+  var to_append = document.getElementsByClassName('loader-container')[0];
+  var all = document.getElementsByClassName('loader-container');
 
-	var parent_div = document.createElement('div');
-	parent_div.className = "loader-container";
-	var inner_div = document.createElement('div');
-	inner_div.className = "loader";
-	parent_div.appendChild(inner_div)
-	var d = document.body.appendChild(parent_div);
+  var parent_div = document.createElement('div');
+  parent_div.className = "loader-container";
+  var inner_div = document.createElement('div');
+  inner_div.className = "loader";
+  parent_div.appendChild(inner_div)
+  var d = document.body.appendChild(parent_div);
 
-	parent_div.style.left = (e.clientX - 50)+'px';
-	parent_div.style.top = (e.clientY - 50)+'px';
+  parent_div.style.left = (e.clientX - 50) + 'px';
+  parent_div.style.top = (e.clientY - 50) + 'px';
 
-	if(document.getElementsByClassName('loader-container').length > 50) {
-		document.body.removeChild(to_append)
-	}
+  if (document.getElementsByClassName('loader-container').length > 50) {
+    document.body.removeChild(to_append)
+  }
 });
-
 
 
 
