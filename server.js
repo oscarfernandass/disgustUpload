@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+
 const app = express();
 const port = 4000;
 
@@ -18,26 +19,73 @@ const upload = multer({ storage: storage });
 // Serve uploaded images statically
 app.use('/uploads', express.static('uploads'));
 
-// Handle image uploads
+// Array to store uploaded images with descriptions
+const uploadedImages = [];
+
+// Handle image uploads and descriptions
 app.post('/upload', upload.single('image'), (req, res) => {
-  // Respond with a success message (you can customize this response)
-  res.json({ message: 'Image uploaded successfully, please redirect to the original page to see the content in the feed. ' });
+  // Retrieve the image description from the request
+  const imageDescription = req.body.description;
 
+  // Get the filename of the uploaded image
+  const filename = req.file.filename;
 
-  
+  // Store the uploaded image and its description
+  const uploadedImage = { filename, description: imageDescription };
+  uploadedImages.push(uploadedImage);
+
+  // Respond with a success message
+  const redirectDelay = 5000; // 5000 milliseconds (5 seconds)
+
+  // Create the HTML response with the countdown timer
+  const htmlResponse = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Upload Complete</title>
+      <style>
+        /* Add your CSS styles here */
+        body {
+          background-color: #f0f0f0;
+          text-align: center;
+        }
+        p {
+          font-size: 24px;
+          color: green;
+        }
+      </style>
+    </head>
+    <body>
+      <p>Image uploaded successfully. Redirecting in <span id="timer">${redirectDelay / 1000}</span> seconds.</p>
+      <script>
+        // Function to update the timer
+        function updateTimer() {
+          const timerElement = document.getElementById('timer');
+          const remainingTime = parseInt(timerElement.textContent) - 1;
+          timerElement.textContent = remainingTime;
+
+          if (remainingTime <= 0) {
+            // Redirect when the countdown reaches 0
+            window.location.href = 'http://localhost:4000/#downside'; // Redirect to your original localhost
+          }
+        }
+
+        // Initial call to start the timer
+        setInterval(updateTimer, 1000); // Update the timer every second
+      </script>
+    </body>
+    </html>
+  `;
+
+  // Respond with the HTML response
+  res.send(htmlResponse);
+
 });
 
-// Serve a list of image filenames as JSON
-app.get('/images', (req, res) => {
-  fs.readdir('./uploads', (err, files) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal server error' });
-      return;
-    }
-
-    res.json(files);
-  });
+// Serve a list of image filenames with descriptions as JSON
+app.get('/images-with-descriptions', (req, res) => {
+  // Respond with the array of uploaded images and their descriptions
+  res.json(uploadedImages);
 });
 
 app.get('/', (req, res) => {
